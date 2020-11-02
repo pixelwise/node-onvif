@@ -166,6 +166,31 @@ function connect(conn, params) {
 	});
 }
 
+
+function getCapabilities(conn, params) {
+
+	var device = devices[params.address];
+	if(!device) {
+		var res = {'id': 'getCapabilities', 'error': 'The specified device is not found: ' + params.address};
+		conn.send(JSON.stringify(res));
+		return;
+	}
+	device.services.device.getCapabilities((error, result) => {
+		var res = {'id': 'getCapabilities'};
+		if(error) {
+			res['error'] = error.toString();
+		} else {
+			var ct = result['headers']['content-type'];
+			var buffer = result['body'];
+			var b64 = buffer.toString('base64');
+			var uri = 'data:' + ct + ';base64,' + b64;
+			res['result'] = uri;
+		}
+		conn.send(JSON.stringify(res));
+	});
+}
+
+
 // For Debug --------------------------------------------
 //var total_size = 0;
 //var start_time = 0;
